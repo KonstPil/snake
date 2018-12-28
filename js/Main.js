@@ -4,7 +4,13 @@ const canvasContent = canvas.getContext('2d');
 let tileGrid = [];
 let snake = new Snake();
 
+
 window.onload = function () {
+  canvas.addEventListener('click', function () {
+    if (snake.isGameOver) {
+      snake.reset();
+    }
+  })
   resetTile();
   snake.reset();
   snake.initInput();
@@ -23,6 +29,9 @@ function drawEverething() {
   drawTileMap();
   snake.draw();
 
+  if (snake.isGameOver) {
+    gameOverAndScore()
+  }
 
 
 }

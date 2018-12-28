@@ -1,5 +1,9 @@
 const SNAKE_START_LENGTH = 3,
-  SNAKE_START_SPEED = 2;//лимит 20
+  SNAKE_START_SPEED = 3;
+
+let pickPart = new Howl({ src: ['sound/Blip_Select.ogg', 'sound/Blip_Select.mp3'] });
+let hitMyself = new Howl({ src: ['sound/Explosion.ogg', 'sound/Explosion.mp3'] });
+
 
 class Snake {
   constructor() {
@@ -24,22 +28,22 @@ class Snake {
   }
 
   draw() {
-    let boxWidth = TILE_SIZE - TILE_GAP;
-    let boxHeight = TILE_SIZE - TILE_GAP;
     this.snakeArr.forEach(el => {
-      let partOfSnake = this.indexToTile(el);
-      let topLeftX = partOfSnake.col * TILE_SIZE + TILE_GAP / 2;
-      let topLeftY = partOfSnake.row * TILE_SIZE + TILE_GAP / 2;
-      colorRect(topLeftX, topLeftY, boxWidth, boxHeight, 'yellow');
+      this.drawOneTile(el, 'yellow')
     })
-
     this.randomSpotForSnakePart();
-    let randomPartOfSnake = this.indexToTile(this.randomOpenSpot);
-    let topLeftX = randomPartOfSnake.col * TILE_SIZE + TILE_GAP / 2;
-    let topLeftY = randomPartOfSnake.row * TILE_SIZE + TILE_GAP / 2;
-    colorRect(topLeftX, topLeftY, boxWidth, boxHeight, 'red');
+    this.drawOneTile(this.randomOpenSpot, 'red');
   }
 
+
+  drawOneTile(spotIndex, color) {
+    let tile = this.indexToTile(spotIndex);
+    let boxWidth = TILE_SIZE - TILE_GAP;
+    let boxHeight = TILE_SIZE - TILE_GAP;
+    let topLeftX = tile.col * TILE_SIZE + TILE_GAP / 2;
+    let topLeftY = tile.row * TILE_SIZE + TILE_GAP / 2;
+    colorRect(topLeftX, topLeftY, boxWidth, boxHeight, color);
+  }
 
   randomSpotForSnakePart() {
     if (!this.isRandomSpotFinded) {
@@ -89,8 +93,10 @@ class Snake {
       this.y = canvas.height;
     }
 
-
   }
+
+
+
 
   findOutColAndRow() {
     this.col = Math.floor(this.x / TILE_SIZE);
@@ -113,11 +119,13 @@ class Snake {
     let tileIndex = this.findOutCurrentIndex();
     if (this.snakeArr.indexOf(tileIndex) !== -1) {
       this.isGameOver = true;
+      hitMyself.play();
     }
     if (tileIndex === this.randomOpenSpot) {
       this.length++;
       tileGrid[tileIndex] = 1;
       this.isRandomSpotFinded = false;
+      pickPart.play();
       this.upSpeed()
     }
     if (this.length === 0) {
@@ -153,6 +161,24 @@ class Snake {
   }
 
   reset() {
+    this.col = 5;
+    this.row = 5;
+    this.x = this.col * TILE_SIZE;
+    this.y = this.row * TILE_SIZE;
+    this.length = SNAKE_START_LENGTH;
+    this.speed = SNAKE_START_SPEED;
+    this.snakeArr = [];
+    this.upButtonHold = false;
+    this.downButtonHold = false;
+    this.leftButtonHold = false;
+    this.rightButtonHold = true;
+    this.isXDirectionOpen = false;
+    this.isYDirectionOpen = true;
+    this.isGameOver = false;
+    this.canITurn = false;
+    this.randomOpenSpot = 0;
+    this.isRandomSpotFinded = false;
+    ///
     let tileIndex = this.findOutCurrentIndex();
     let tail = tileIndex - this.length + 1;
     for (let i = tail; i <= tileIndex; i++) {
