@@ -23,6 +23,8 @@ function drawEverething() {
   drawTileMap();
   snake.draw();
 
+
+
 }
 function moveEverething() {
   snake.move();

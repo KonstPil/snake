@@ -14,6 +14,10 @@ class Snake {
     this.downButtonHold = false;
     this.leftButtonHold = false;
     this.rightButtonHold = true;
+    this.isXDirectionOpen = false;
+    this.isYDirectionOpen = true;
+    this.isGameOver = false;
+    this.canITurn = false;//чтобы при быстром нажатии не врезаться в самого себя
     //рандомное место
     this.randomOpenSpot;
     this.isRandomSpotFinded = false;
@@ -54,21 +58,23 @@ class Snake {
   move() {
     this.prevCol = this.col;
     this.prevRow = this.row;
-    if (this.upButtonHold) {
-      this.y -= this.speed;
-    } else if (this.downButtonHold) {
-      this.y += this.speed;
-    } else if (this.leftButtonHold) {
-      this.x -= this.speed;
-    } else if (this.rightButtonHold) {
-      this.x += this.speed;
+    if (!this.isGameOver) {
+      if (this.upButtonHold) {
+        this.y -= this.speed;
+      } else if (this.downButtonHold) {
+        this.y += this.speed;
+      } else if (this.leftButtonHold) {
+        this.x -= this.speed;
+      } else if (this.rightButtonHold) {
+        this.x += this.speed;
+      }
     }
-    console.log(this.length, this.speed);
 
 
     this.findOutColAndRow();
 
     if (this.prevCol !== this.col || this.prevRow !== this.row) {
+      this.canITurn = true;
       this.tileToZeroAndOne();
     }
 
@@ -104,7 +110,10 @@ class Snake {
 
 
   tileToZeroAndOne() {
-    let tileIndex = this.col + TILE_COLLS * this.row;
+    let tileIndex = this.findOutCurrentIndex();
+    if (this.snakeArr.indexOf(tileIndex) !== -1) {
+      this.isGameOver = true;
+    }
     if (tileIndex === this.randomOpenSpot) {
       this.length++;
       tileGrid[tileIndex] = 1;
@@ -144,7 +153,7 @@ class Snake {
   }
 
   reset() {
-    let tileIndex = this.col + TILE_COLLS * this.row;
+    let tileIndex = this.findOutCurrentIndex();
     let tail = tileIndex - this.length + 1;
     for (let i = tail; i <= tileIndex; i++) {
       this.snakeArr.push(i);
@@ -162,28 +171,45 @@ class Snake {
 
   }
 
+  findOutCurrentIndex() {
+    return (this.col + TILE_COLLS * this.row)
+  }
 
-  whichButtonHold(e) {
-    switch (e.keyCode) {
-      case 87:
-        this.upButtonHold = true;
-        break
-      case 83:
-        this.downButtonHold = true;
-        break
-      case 65:
-        this.leftButtonHold = true;
-        break;
-      case 68:
-        this.rightButtonHold = true;
-        break;
+  whichDirectionYouCanGo(e) {
+    if (e.keyCode === 87 && this.isYDirectionOpen && this.canITurn) {
+      this.eachFalse();
+      this.canITurn = false;
+      this.upButtonHold = true;
+      this.isYDirectionOpen = false;
+      this.isXDirectionOpen = true;
     }
+    if (e.keyCode === 83 && this.isYDirectionOpen && this.canITurn) {
+      this.eachFalse();
+      this.canITurn = false;
+      this.downButtonHold = true;
+      this.isYDirectionOpen = false;
+      this.isXDirectionOpen = true;
+    }
+    if (e.keyCode === 65 && this.isXDirectionOpen && this.canITurn) {
+      this.eachFalse();
+      this.canITurn = false;
+      this.leftButtonHold = true;
+      this.isXDirectionOpen = false;
+      this.isYDirectionOpen = true;
+    }
+    if (e.keyCode === 68 && this.isXDirectionOpen && this.canITurn) {
+      this.eachFalse();
+      this.canITurn = false;
+      this.rightButtonHold = true;
+      this.isXDirectionOpen = false;
+      this.isYDirectionOpen = true;
+    }
+
   }
 
   keyPressed(e) {
     e.preventDefault();
-    this.eachFalse();
-    this.whichButtonHold(e)
+    this.whichDirectionYouCanGo(e)
   }
 
   // keyReleased(e) {
