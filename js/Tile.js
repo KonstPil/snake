@@ -30,3 +30,5 @@ function isBrickAtTileCoord(brickTileCol, brickTileRow) {
   let brickIndex = brickTileToIndex(brickTileCol, brickTileRow)
   return (tileGrid[brickIndex] === 1)
 }
+
+
