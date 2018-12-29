@@ -1,14 +1,17 @@
 const SNAKE_START_LENGTH = 3,
   SNAKE_START_SPEED = 3;
+START_X = 5,
+  START_Y = 5;
 
 let pickPart = new Howl({ src: ['sound/Blip_Select.ogg', 'sound/Blip_Select.mp3'] });
 let hitMyself = new Howl({ src: ['sound/Explosion.ogg', 'sound/Explosion.mp3'] });
 
 
+
 class Snake {
   constructor() {
-    this.col = 5;
-    this.row = 5;
+    this.col = START_X;
+    this.row = START_Y;
     this.x = this.col * TILE_SIZE;
     this.y = this.row * TILE_SIZE;
     this.length = SNAKE_START_LENGTH;
@@ -53,7 +56,10 @@ class Snake {
           openspotsArr.push(i);
         }
       }
+
       let random = Math.floor(Math.random() * openspotsArr.length);
+      console.log(random);
+
       this.randomOpenSpot = openspotsArr[random];
       this.isRandomSpotFinded = true;
     }
@@ -76,7 +82,6 @@ class Snake {
 
 
     this.findOutColAndRow();
-
     if (this.prevCol !== this.col || this.prevRow !== this.row) {
       this.canITurn = true;
       this.tileToZeroAndOne();
@@ -101,13 +106,13 @@ class Snake {
   findOutColAndRow() {
     this.col = Math.floor(this.x / TILE_SIZE);
     this.row = Math.floor(this.y / TILE_SIZE);
-    if (this.col > 19) {
-      this.col = 19
+    if (this.col >= TILE_COLLS) {
+      this.col = TILE_COLLS - 1;
     } else if (this.col < 0) {
       this.col = 0
     }
-    if (this.row > 14) {
-      this.row = 14
+    if (this.row >= TILE_ROWS) {
+      this.row = TILE_ROWS - 1;
     } else if (this.row < 0) {
       this.row = 0
     }
@@ -117,10 +122,11 @@ class Snake {
 
   tileToZeroAndOne() {
     let tileIndex = this.findOutCurrentIndex();
-    if (this.snakeArr.indexOf(tileIndex) !== -1) {
-      this.isGameOver = true;
-      hitMyself.play();
-    }
+    // console.log(tileIndex, this.snakeArr);
+    // if (this.snakeArr.indexOf(tileIndex) !== -1) {
+    //   this.isGameOver = true;
+    // }
+
     if (tileIndex === this.randomOpenSpot) {
       this.length++;
       tileGrid[tileIndex] = 1;
@@ -130,6 +136,11 @@ class Snake {
     }
     if (this.length === 0) {
       let snailsTail = this.snakeArr.shift();
+      //проверяем game over когда у нас нет хваотса т.е когда сдвигается голова, сдвигается всё 
+      if (this.snakeArr.indexOf(tileIndex) !== -1) {
+        this.isGameOver = true;
+        hitMyself.play();
+      }
       tileGrid[snailsTail] = 0;
       this.length++;
     }
@@ -138,6 +149,8 @@ class Snake {
       tileGrid[tileIndex] = 1;
       this.length--;
     }
+    console.log(this.snakeArr);
+
   }
 
 
@@ -161,8 +174,8 @@ class Snake {
   }
 
   reset() {
-    this.col = 5;
-    this.row = 5;
+    this.col = START_X;
+    this.row = START_Y;
     this.x = this.col * TILE_SIZE;
     this.y = this.row * TILE_SIZE;
     this.length = SNAKE_START_LENGTH;
@@ -181,10 +194,13 @@ class Snake {
     ///
     let tileIndex = this.findOutCurrentIndex();
     let tail = tileIndex - this.length + 1;
+
     for (let i = tail; i <= tileIndex; i++) {
+      console.log(this.length, this.snakeArr);
       this.snakeArr.push(i);
       tileGrid[i] = 1;
     }
+
     this.length = 0;
   }
 
@@ -238,10 +254,6 @@ class Snake {
     this.whichDirectionYouCanGo(e)
   }
 
-  // keyReleased(e) {
-  //   e.preventDefault();
-  //   this.isButtonHold = false;
-  // }
 
   eachFalse() {
     this.upButtonHold = false;
